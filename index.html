@@ -106,7 +106,7 @@
             showLoadingIndicator();
 
             // Make an HTTP request to the chatbot server
-            fetch('https://chatbot-j4e6bzt23-optifusions-projects.vercel.app/', {
+            fetch('http://localhost:1234/v1/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
