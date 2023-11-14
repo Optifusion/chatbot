@@ -36,6 +36,35 @@
             margin-right: auto;
             text-align: left;
         }
+
+        #loadingIndicator {
+            display: none;
+            margin-top: 10px;
+        }
+
+        @keyframes loadingAnimation {
+            0% {
+                content: '⠋';
+            }
+            25% {
+                content: '⠙';
+            }
+            50% {
+                content: '⠹';
+            }
+            75% {
+                content: '⠸';
+            }
+            100% {
+                content: '⠼';
+            }
+        }
+
+        .loading-text::before {
+            content: '⠋';
+            animation: loadingAnimation 0.5s infinite;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -50,6 +79,8 @@
         <button class="chatButton" onclick="goBack()">Go Back</button>
     </div>
 
+    <div id="loadingIndicator" class="loading-text"></div>
+
     <div id="chatbox"></div>
 
     <script>
@@ -57,11 +88,22 @@
         let conversationHistory = [];
         let lastUserMessageIndex = -1;
 
+        function showLoadingIndicator() {
+            document.getElementById('loadingIndicator').style.display = 'inline-block';
+        }
+
+        function hideLoadingIndicator() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
         function sendMessage() {
             const userMessage = document.getElementById('userMessage').value;
 
             // Add user message to conversation history
             conversationHistory.push({ role: 'user', content: userMessage });
+
+            // Display loading indicator
+            showLoadingIndicator();
 
             // Make an HTTP request to the chatbot server
             fetch('http://localhost:1234/v1/chat/completions', {
@@ -87,7 +129,11 @@
                 // Update the UI with the conversation history
                 updateChatbox();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error:', error))
+            .finally(() => {
+                // Hide loading indicator after the request is complete
+                hideLoadingIndicator();
+            });
         }
 
         function regenerateAnswer() {
@@ -121,3 +167,4 @@
     </script>
 </body>
 </html>
+
