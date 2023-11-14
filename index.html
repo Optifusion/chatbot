@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #userMessage {
+            width: 60%;
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        #sendButton, #regenerateButton, #goBackButton {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #chatbox {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label for="userMessage">Enter your message:</label>
+        <input type="text" id="userMessage" />
+        <button id="sendButton" onclick="sendMessage()">Send</button>
+        <button id="regenerateButton" onclick="regenerateAnswer()">Regenerate</button>
+        <button id="goBackButton" onclick="goBack()">Go Back</button>
+    </div>
+    <div id="chatbox"></div>
+
+    <script>
+        // Maintain conversation history
+        let conversationHistory = [];
+        let lastUserMessageIndex = -1;
+
+        function sendMessage() {
+            const userMessage = document.getElementById('userMessage').value;
+
+            // Add user message to conversation history
+            conversationHistory.push({ role: 'user', content: userMessage });
+
+            // Make an HTTP request to the chatbot server
+            fetch('http://localhost:1234/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messages: conversationHistory.map(message => {
+                        // Set 'assistant' role for chatbot responses
+                        return { role: message.role === 'user' ? 'user' : 'assistant', content: message.content };
+                    }),
+                    temperature: 0.7,
+                    max_tokens: -1,
+                    stream: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add chatbot response to conversation history
+                conversationHistory.push({ role: 'assistant', content: data.choices[0].message.content });
+
+                // Update the UI with the conversation history
+                updateChatbox();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function regenerateAnswer() {
+            // Remove the last assistant response
+            conversationHistory.pop();
+            // Mark the index of the last user message
+            lastUserMessageIndex = conversationHistory.findIndex(message => message.role === 'user');
+            // Call sendMessage to regenerate the answer
+            sendMessage();
+        }
+
+        function goBack() {
+            // Remove the last assistant response
+            conversationHistory.pop();
+            // Remove all messages after the last user message
+            conversationHistory = conversationHistory.slice(0, lastUserMessageIndex + 1);
+            // Update the UI with the updated conversation history
+            updateChatbox();
+        }
+
+        function updateChatbox() {
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML = '';
+
+            // Display the entire conversation
+            for (const message of conversationHistory) {
+                const role = message.role === 'user' ? 'User' : 'Chatbot';
+                chatbox.innerHTML += `<p>${role}: ${message.content}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
