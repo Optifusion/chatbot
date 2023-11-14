@@ -105,6 +105,9 @@
             // Display loading indicator
             showLoadingIndicator();
 
+            // Create a prompt string from conversation history
+            const prompt = conversationHistory.map(message => message.content).join('\n');
+
             // Make an HTTP request to the chatbot server
             fetch('http://localhost:1234/v1/chat/completions', {
                 method: 'POST',
@@ -112,10 +115,7 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    messages: conversationHistory.map(message => {
-                        // Set 'assistant' role for chatbot responses
-                        return { role: message.role === 'user' ? 'user' : 'assistant', content: message.content };
-                    }),
+                    prompt: prompt,  // Include the prompt
                     temperature: 0.7,
                     max_tokens: -1,
                     stream: false
@@ -167,5 +167,3 @@
     </script>
 </body>
 </html>
-
-
