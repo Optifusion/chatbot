@@ -8,6 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            text-align: center;
         }
 
         #userMessage {
@@ -16,9 +17,14 @@
             margin-right: 10px;
         }
 
-        #sendButton, #regenerateButton, #goBackButton {
+        #actionButtons {
+            margin-top: 10px;
+        }
+
+        .chatButton {
             padding: 8px;
             cursor: pointer;
+            margin-right: 5px;
         }
 
         #chatbox {
@@ -26,6 +32,9 @@
             border: 1px solid #ccc;
             padding: 10px;
             max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
         }
     </style>
 </head>
@@ -33,10 +42,14 @@
     <div>
         <label for="userMessage">Enter your message:</label>
         <input type="text" id="userMessage" />
-        <button id="sendButton" onclick="sendMessage()">Send</button>
-        <button id="regenerateButton" onclick="regenerateAnswer()">Regenerate</button>
-        <button id="goBackButton" onclick="goBack()">Go Back</button>
     </div>
+
+    <div id="actionButtons">
+        <button class="chatButton" onclick="sendMessage()">Send</button>
+        <button class="chatButton" onclick="regenerateAnswer()">Regenerate</button>
+        <button class="chatButton" onclick="goBack()">Go Back</button>
+    </div>
+
     <div id="chatbox"></div>
 
     <script>
